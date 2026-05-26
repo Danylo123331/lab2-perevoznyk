@@ -18,21 +18,40 @@ public class PlayerController : MonoBehaviour
     [Header("UI Follow Settings")]
     public Vector3 uiOffset = new Vector3(0, -1.2f, 0);
 
+    [Header("Audio")]
+    public AudioClip flySound;
+    private AudioSource audioSource;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         currentEnergy = maxEnergy;
+        audioSource = gameObject.AddComponent<AudioSource>();
+        if (audioSource != null)
+        {
+            audioSource.clip = flySound;
+            audioSource.loop = true;
+            audioSource.playOnAwake = false;
+        }
     }
 
     void Update()
     {
-        if ((Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0)) && !isOverheated)
+        if ((Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0)) && !isOverheated && Time.timeScale > 0)
         {
             isThrusting = true;
+            if (audioSource != null && !audioSource.isPlaying && flySound != null)
+            {
+                audioSource.Play();
+            }
         }
         else
         {
             isThrusting = false;
+            if (audioSource != null && audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
         }
 
         if (isThrusting)
@@ -46,12 +65,15 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            currentEnergy += energyRecovery * Time.deltaTime;
-
-            if (currentEnergy >= maxEnergy)
+            if (Time.timeScale > 0)
             {
-                currentEnergy = maxEnergy;
-                isOverheated = false;
+                currentEnergy += energyRecovery * Time.deltaTime;
+
+                if (currentEnergy >= maxEnergy)
+                {
+                    currentEnergy = maxEnergy;
+                    isOverheated = false;
+                }
             }
         }
 

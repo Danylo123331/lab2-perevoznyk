@@ -8,12 +8,21 @@ public class GameManager : MonoBehaviour
 
     [Header("UI Elements")]
     public Text scoreText;
+    public Text bestScoreText;
+    public Text coinText;
     public Slider energySlider;
     public GameObject gameOverPanel;
     public Text overheatText;
     public Image overheatOverlay;
 
+    [Header("Audio Clips")]
+    public AudioClip hitSound;
+    public AudioClip gameOverSound;
+    public AudioClip coinSound;
+
     private int score = 0;
+    private int coins = 0;
+    private int bestScore = 0;
     private bool isGameOver = false;
     private bool isOverheatedState = false;
 
@@ -26,14 +35,11 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1f;
-
+        bestScore = PlayerPrefs.GetInt("BestScore", 0);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (overheatText != null) overheatText.gameObject.SetActive(false);
-
-        // Зробимо тло повністю прозорим, але не вимкненим
         if (overheatOverlay != null) overheatOverlay.color = new Color(1f, 0f, 0f, 0f);
-
-        UpdateScoreUI();
+        UpdateUI();
     }
 
     void Update()
@@ -45,13 +51,11 @@ public class GameManager : MonoBehaviour
 
             if (overheatOverlay != null)
             {
-                // Мигання тла (макс прозорість 0.3)
                 overheatOverlay.color = new Color(1f, 0f, 0f, alpha * 0.3f);
             }
 
             if (overheatText != null)
             {
-                // Мигання тексту (макс прозорість 1)
                 overheatText.color = new Color(1f, 0f, 0f, alpha);
             }
         }
@@ -61,7 +65,18 @@ public class GameManager : MonoBehaviour
     {
         if (isGameOver) return;
         score++;
-        UpdateScoreUI();
+        UpdateUI();
+    }
+
+    public void AddCoin()
+    {
+        if (isGameOver) return;
+        coins++;
+        if (coinSound != null)
+        {
+            AudioSource.PlayClipAtPoint(coinSound, Camera.main.transform.position);
+        }
+        UpdateUI();
     }
 
     public void UpdateEnergyUI(float current, float max, bool isOverheated)
@@ -83,14 +98,15 @@ public class GameManager : MonoBehaviour
 
         if (!isOverheated)
         {
-            // Після остигання повертаємо тло в нульову прозорість
             if (overheatOverlay != null) overheatOverlay.color = new Color(1f, 0f, 0f, 0f);
         }
     }
 
-    void UpdateScoreUI()
+    void UpdateUI()
     {
         if (scoreText != null) scoreText.text = "SCORE: " + score;
+        if (bestScoreText != null) bestScoreText.text = "BEST: " + bestScore;
+        if (coinText != null) coinText.text = "COINS: " + coins;
     }
 
     public void GameOver()
@@ -100,11 +116,20 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
         isOverheatedState = false;
 
+        if (score > bestScore)
+        {
+            bestScore = score;
+            PlayerPrefs.SetInt("BestScore", bestScore);
+            PlayerPrefs.Save();
+        }
+
+        if (hitSound != null) AudioSource.PlayClipAtPoint(hitSound, Camera.main.transform.position);
+        if (gameOverSound != null) AudioSource.PlayClipAtPoint(gameOverSound, Camera.main.transform.position);
+
         if (gameOverPanel != null) gameOverPanel.SetActive(true);
         if (overheatText != null) overheatText.gameObject.SetActive(false);
-
-        // Прибираємо тло в момент смерті
         if (overheatOverlay != null) overheatOverlay.color = new Color(1f, 0f, 0f, 0f);
+        UpdateUI();
     }
 
     public void RestartGame()
