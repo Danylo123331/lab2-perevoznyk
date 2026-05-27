@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance;
     public static GameManager Instance;
 
     [Header("UI Elements")]
@@ -16,9 +17,15 @@ public class GameManager : MonoBehaviour
     public Image overheatOverlay;
 
     [Header("Audio Clips")]
+    public AudioSource backgroundMusic;
     public AudioClip hitSound;
     public AudioClip gameOverSound;
     public AudioClip coinSound;
+
+    [Header("Difficulty Settings")]
+    public float gameSpeedMultiplier = 1f;
+    public float speedIncreaseRate = 0.015f;
+    public float maxSpeedMultiplier = 2.5f;
 
     private int score = 0;
     private int coins = 0;
@@ -28,8 +35,8 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        instance = this;
+        Instance = this;
     }
 
     void Start()
@@ -44,6 +51,15 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (!isGameOver)
+        {
+            gameSpeedMultiplier += speedIncreaseRate * Time.deltaTime;
+            if (gameSpeedMultiplier > maxSpeedMultiplier)
+            {
+                gameSpeedMultiplier = maxSpeedMultiplier;
+            }
+        }
+
         if (isOverheatedState && !isGameOver)
         {
             float t = Time.unscaledTime * 5f;
@@ -115,6 +131,21 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
         Time.timeScale = 0f;
         isOverheatedState = false;
+
+        if (backgroundMusic != null)
+        {
+            backgroundMusic.Stop();
+        }
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            AudioSource[] playerAudios = player.GetComponents<AudioSource>();
+            foreach (AudioSource audio in playerAudios)
+            {
+                audio.Stop();
+            }
+        }
 
         if (score > bestScore)
         {

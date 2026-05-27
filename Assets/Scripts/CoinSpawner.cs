@@ -30,7 +30,7 @@ public class CoinSpawner : MonoBehaviour
         float randomY = Random.Range(minY, maxY);
         Vector3 spawnPos = new Vector3(transform.position.x, randomY, 0f);
 
-        Collider2D hit = Physics2D.OverlapCircle(spawnPos, 1.5f);
+        Collider2D hit = Physics2D.OverlapBox(spawnPos, new Vector2(6f, 4f), 0f);
         if (hit != null && hit.CompareTag("Obstacle"))
         {
             return;

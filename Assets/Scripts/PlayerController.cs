@@ -2,89 +2,97 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Fly Settings")]
-    public float flyForce = 35f;
-    private Rigidbody2D rb;
-
-    [Header("Energy & Overheat")]
+    public float flyForce = 5f;
     public float maxEnergy = 100f;
-    public float energyDrain = 60f;
-    public float energyRecovery = 40f;
+    public float heatingSpeed = 40f;
+    public float coolingSpeed = 20f;
+
+    public AudioClip jetpackSound;
+    public AudioClip overheatAlarmSound;
+
+    private Rigidbody2D rb;
+    private AudioSource jetpackAudio;
+    private AudioSource alarmAudio;
 
     private float currentEnergy;
     private bool isOverheated = false;
     private bool isThrusting = false;
 
-    [Header("UI Follow Settings")]
-    public Vector3 uiOffset = new Vector3(0, -1.2f, 0);
-
-    [Header("Audio")]
-    public AudioClip flySound;
-    private AudioSource audioSource;
-
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         currentEnergy = maxEnergy;
-        audioSource = gameObject.AddComponent<AudioSource>();
-        if (audioSource != null)
-        {
-            audioSource.clip = flySound;
-            audioSource.loop = true;
-            audioSource.playOnAwake = false;
-        }
+
+        jetpackAudio = gameObject.AddComponent<AudioSource>();
+        jetpackAudio.clip = jetpackSound;
+        jetpackAudio.loop = true;
+        jetpackAudio.playOnAwake = false;
+
+        alarmAudio = gameObject.AddComponent<AudioSource>();
+        alarmAudio.clip = overheatAlarmSound;
+        alarmAudio.loop = true;
+        alarmAudio.playOnAwake = false;
     }
 
     void Update()
     {
-        if ((Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0)) && !isOverheated && Time.timeScale > 0)
+        bool isFlyingInput = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0);
+
+        if (isOverheated)
         {
-            isThrusting = true;
-            if (audioSource != null && !audioSource.isPlaying && flySound != null)
+            currentEnergy += coolingSpeed * Time.deltaTime;
+            if (currentEnergy >= maxEnergy)
             {
-                audioSource.Play();
+                currentEnergy = maxEnergy;
+                isOverheated = false;
             }
         }
         else
         {
-            isThrusting = false;
-            if (audioSource != null && audioSource.isPlaying)
+            if (isFlyingInput)
             {
-                audioSource.Stop();
+                currentEnergy -= heatingSpeed * Time.deltaTime;
+                if (currentEnergy <= 0)
+                {
+                    currentEnergy = 0;
+                    isOverheated = true;
+                }
+            }
+            else
+            {
+                currentEnergy += coolingSpeed * Time.deltaTime;
+                if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
             }
         }
+
+        isThrusting = isFlyingInput && !isOverheated;
 
         if (isThrusting)
         {
-            currentEnergy -= energyDrain * Time.deltaTime;
-            if (currentEnergy <= 0)
-            {
-                currentEnergy = 0;
-                isOverheated = true;
-            }
+            if (!jetpackAudio.isPlaying) jetpackAudio.Play();
         }
         else
         {
-            if (Time.timeScale > 0)
-            {
-                currentEnergy += energyRecovery * Time.deltaTime;
-
-                if (currentEnergy >= maxEnergy)
-                {
-                    currentEnergy = maxEnergy;
-                    isOverheated = false;
-                }
-            }
+            if (jetpackAudio.isPlaying) jetpackAudio.Stop();
         }
 
-        if (GameManager.Instance != null)
+        if (isOverheated)
         {
-            GameManager.Instance.UpdateEnergyUI(currentEnergy, maxEnergy, isOverheated);
+            if (!alarmAudio.isPlaying) alarmAudio.Play();
+        }
+        else
+        {
+            if (alarmAudio.isPlaying) alarmAudio.Stop();
+        }
 
-            if (GameManager.Instance.energySlider != null)
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.UpdateEnergyUI(currentEnergy, maxEnergy, isOverheated);
+
+            if (GameManager.instance.energySlider != null)
             {
-                Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + uiOffset);
-                GameManager.Instance.energySlider.transform.position = screenPos;
+                Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.down * 0.8f);
+                GameManager.instance.energySlider.transform.position = screenPos;
             }
         }
     }
@@ -101,7 +109,12 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("Obstacle"))
         {
-            if (GameManager.Instance != null) GameManager.Instance.GameOver();
+            if (GameManager.instance != null) GameManager.instance.GameOver();
+        }
+        else if (collision.CompareTag("Coin"))
+        {
+            if (GameManager.instance != null) GameManager.instance.AddCoin();
+            Destroy(collision.gameObject);
         }
     }
 }

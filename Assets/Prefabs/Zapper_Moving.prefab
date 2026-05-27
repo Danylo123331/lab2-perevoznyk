@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1332731040444825678}
   - component: {fileID: 4755785622683571264}
-  - component: {fileID: 9156522452647535796}
   - component: {fileID: 8772718437215992659}
+  - component: {fileID: 3741589945986167307}
   m_Layer: 0
   m_Name: Zapper_Moving
   m_TagString: Obstacle
@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 2369736147206504130}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 3, z: 1}
+  m_LocalPosition: {x: 10.2415, y: -0.0153, z: 0}
+  m_LocalScale: {x: 1.3587161, y: 4.493668, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -83,18 +83,35 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.6901961, g: 0.1882353, b: 0.3764706, a: 1}
+  m_Sprite: {fileID: 7837074866610548895, guid: 405d29b6ae9fd0248a5c2e9b4198a082, type: 3}
+  m_Color: {r: 1, g: 0.9803922, b: 0.9803922, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.36, y: 0.66}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!61 &9156522452647535796
-BoxCollider2D:
+--- !u!114 &8772718437215992659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2369736147206504130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ac18a3bdf266d47baa58dc2261e527, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObstacleMover
+  speed: 5
+  isMovingUpDown: 1
+  verticalSpeed: 2
+  verticalRange: 1.5
+  customHitSound: {fileID: 8300000, guid: 10cfc94921ee38e438771054ec24bbe9, type: 3}
+--- !u!60 &3741589945986167307
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -131,27 +148,28 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
+    oldSize: {x: 0.36, y: 0.66}
+    newSize: {x: 0.36, y: 0.66}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
---- !u!114 &8772718437215992659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2369736147206504130}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10ac18a3bdf266d47baa58dc2261e527, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObstacleMover
-  speed: 5
-  isMovingUpDown: 1
-  verticalSpeed: 2
-  verticalRange: 1.5
+  m_Points:
+    m_Paths:
+    - - {x: -0.02, y: 0.08}
+      - {x: -0.11, y: -0.099999994}
+      - {x: -0.11, y: -0.26}
+      - {x: -0.099999994, y: -0.26999998}
+      - {x: -0.06, y: -0.26999998}
+      - {x: -0.02, y: -0.22999999}
+      - {x: 0.049999997, y: 0}
+      - {x: 0.049999997, y: 0.08}
+    - - {x: 0.06, y: 0.26}
+      - {x: 0.03, y: 0.22999999}
+      - {x: 0.03, y: 0.16}
+      - {x: 0.04, y: 0.14}
+      - {x: 0.099999994, y: 0.14}
+      - {x: 0.12, y: 0.17}
+      - {x: 0.12, y: 0.24}
+      - {x: 0.11, y: 0.26}
+  m_UseDelaunayMesh: 1
